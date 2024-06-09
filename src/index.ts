@@ -1,4 +1,5 @@
-import app from "./app"
+import "module-alias/register"
+import app from "@src/app"
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
