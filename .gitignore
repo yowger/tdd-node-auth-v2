@@ -21,3 +21,6 @@ logs/
 # OS or temporary files
 .DS_Store
 Thumbs.db
+
+# test coverage
+coverage/

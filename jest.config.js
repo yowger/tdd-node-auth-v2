@@ -5,6 +5,7 @@ module.exports = {
     testMatch: ["**/**/*.test.ts"],
     testPathIgnorePatterns: ["/node_modules/"],
     moduleNameMapper: {
-        '^@src/(.*)$': '<rootDir>/src/$1',
+        "^@src/(.*)$": "<rootDir>/src/$1",
     },
+    collectCoverage: true,
 }
