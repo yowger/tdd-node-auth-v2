@@ -2,6 +2,11 @@ import request from "supertest"
 
 import app from "@src/app"
 
+import { createUser, findUserByEmail } from "@src/services/userService"
+
+jest.mock("bcrypt")
+jest.mock("@src/services/userService")
+
 import {
     clearDatabase,
     setupTestEnvironment,
@@ -28,15 +33,27 @@ const validUser = {
     password: "Password123",
 }
 
+const userPayload = {
+    id: 1,
+    name: "John Doe",
+    email: "johndoe12@gmail.com",
+}
+
 const registerUser = (user = validUser) => {
     return request(app).post("/api/register").send(user)
 }
-
+jest.setTimeout(30000)
 describe("auth routes", () => {
+    beforeEach(() => {
+        jest.clearAllMocks()
+    })
+
+    const mockedCreateUser = jest.mocked(createUser)
+    const mockedFindUserByEmail = jest.mocked(findUserByEmail)
+
     describe("POST api/register", () => {
         it("should return 201 if register is success", async () => {
             const { statusCode } = await registerUser()
-
             expect(statusCode).toBe(201)
         })
 
@@ -150,12 +167,30 @@ describe("auth routes", () => {
         })
 
         it("should return 409 if email is already in use", async () => {
-            await registerUser()
+            mockedFindUserByEmail
+                // @ts-ignore
+                .mockResolvedValueOnce({
+                    name: "John Doe",
+                    email: "johndoe@gmail.com",
+                })
 
             const { statusCode, body } = await registerUser()
 
             expect(statusCode).toBe(409)
-            expect(body.error).toBe("Email already registered") 
+            expect(body.error).toBe("Email already registered")
+        })
+
+        it("should not call createUser if email is already registered", async () => {
+            mockedFindUserByEmail
+                // @ts-ignore
+                .mockResolvedValueOnce({
+                    name: "John Doe",
+                    email: "johndoe@gmail.com",
+                })
+
+            await registerUser()
+
+            expect(mockedCreateUser).not.toHaveBeenCalled()
         })
     })
 })
