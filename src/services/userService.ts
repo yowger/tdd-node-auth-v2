@@ -9,3 +9,10 @@ export const createUser = async (input: User) => {
 
     return user
 }
+
+export const findUserByEmail = async (email: string) => {
+    return UserModel.findOne({ email })
+        .select("_+id +name +email +password +verified +createdAt +updatedAt")
+        .lean()
+        .exec()
+}

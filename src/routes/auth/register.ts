@@ -1,6 +1,6 @@
 import express from "express"
 
-import { createUser } from "@src/services/userService"
+import { createUser, findUserByEmail } from "@src/services/userService"
 
 import { registerSchema } from "@src/routes/auth/schema"
 
@@ -15,6 +15,11 @@ router.post(
     [validateRequest(registerSchema)],
     async (req: Request, res: Response) => {
         const { name, email, password } = req.body
+
+        const user = await findUserByEmail(req.body.email)
+        if (user) {
+            return res.status(409).json({ error: "Email already registered" })
+        }
 
         const createdUser = await createUser({
             name,

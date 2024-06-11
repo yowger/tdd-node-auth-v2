@@ -8,10 +8,10 @@ import {
     teardownTestEnvironment,
 } from "../database"
 
-jest.setTimeout(60000)
-
 beforeAll(async () => {
     await setupTestEnvironment()
+
+    jest.setTimeout(20000)
 })
 
 afterAll(async () => {
@@ -147,6 +147,15 @@ describe("auth routes", () => {
                 const { statusCode } = await registerUser(userInput)
                 expect(statusCode).toBe(400)
             })
+        })
+
+        it("should return 409 if email is already in use", async () => {
+            await registerUser()
+
+            const { statusCode, body } = await registerUser()
+
+            expect(statusCode).toBe(409)
+            expect(body.error).toBe("Email already registered") 
         })
     })
 })
