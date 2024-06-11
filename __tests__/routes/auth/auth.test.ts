@@ -87,45 +87,66 @@ describe("auth routes", () => {
             }
         })
 
-        it("should return 400 when password is weak", async () => {
-            const weakPasswords = [
-                {
+        describe("invalid Passwords", () => {
+            it("should return 400 when password is less than 6 characters", async () => {
+                const userInput = {
                     name: "John Doe",
                     email: "johndoe12@gmail.com",
-                    password: "weak", // Password less than 6 characters
-                },
-                {
-                    name: "John Doe",
-                    email: "johndoe12@gmail.com",
-                    password: "alllowercase", // No uppercase letter
-                },
-                {
-                    name: "John Doe",
-                    email: "johndoe12@gmail.com",
-                    password: "ALLUPPERCASE", // No lowercase letter or number
-                },
-                {
-                    name: "John Doe",
-                    email: "johndoe12@gmail.com",
-                    password: "123456", // No uppercase letter
-                },
-                {
-                    name: "John Doe",
-                    email: "johndoe12@gmail.com",
-                    password: "Abc1", // Less than 6 characters
-                },
-                {
-                    name: "John Doe",
-                    email: "johndoe12@gmail.com",
-                    password: "NoNumber", // No number
-                },
-            ]
-
-            for (const weakPassword of weakPasswords) {
-                const { statusCode } = await registerUser(weakPassword)
-
+                    password: "weak",
+                }
+                const { statusCode } = await registerUser(userInput)
                 expect(statusCode).toBe(400)
-            }
+            })
+
+            it("should return 400 when password has no uppercase letter", async () => {
+                const userInput = {
+                    name: "John Doe",
+                    email: "johndoe12@gmail.com",
+                    password: "alllowercase",
+                }
+                const { statusCode } = await registerUser(userInput)
+                expect(statusCode).toBe(400)
+            })
+
+            it("should return 400 when password has no lowercase letter or number", async () => {
+                const userInput = {
+                    name: "John Doe",
+                    email: "johndoe12@gmail.com",
+                    password: "ALLUPPERCASE",
+                }
+                const { statusCode } = await registerUser(userInput)
+                expect(statusCode).toBe(400)
+            })
+
+            it("should return 400 when password has no uppercase letter", async () => {
+                const userInput = {
+                    name: "John Doe",
+                    email: "johndoe12@gmail.com",
+                    password: "123456",
+                }
+                const { statusCode } = await registerUser(userInput)
+                expect(statusCode).toBe(400)
+            })
+
+            it("should return 400 when password is less than 6 characters", async () => {
+                const userInput = {
+                    name: "John Doe",
+                    email: "johndoe12@gmail.com",
+                    password: "Abc1",
+                }
+                const { statusCode } = await registerUser(userInput)
+                expect(statusCode).toBe(400)
+            })
+
+            it("should return 400 when password has no number", async () => {
+                const userInput = {
+                    name: "John Doe",
+                    email: "johndoe12@gmail.com",
+                    password: "NoNumber",
+                }
+                const { statusCode } = await registerUser(userInput)
+                expect(statusCode).toBe(400)
+            })
         })
     })
 })
