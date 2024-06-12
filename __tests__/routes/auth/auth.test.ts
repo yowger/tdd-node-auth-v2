@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt"
 import request from "supertest"
 
 import app from "@src/app"
@@ -167,12 +168,11 @@ describe("auth routes", () => {
         })
 
         it("should return 409 if email is already in use", async () => {
-            mockedFindUserByEmail
-                // @ts-ignore
-                .mockResolvedValueOnce({
-                    name: "John Doe",
-                    email: "johndoe@gmail.com",
-                })
+            // @ts-ignore
+            mockedFindUserByEmail.mockResolvedValueOnce({
+                name: "John Doe",
+                email: "johndoe@gmail.com",
+            })
 
             const { statusCode, body } = await registerUser()
 
@@ -181,16 +181,40 @@ describe("auth routes", () => {
         })
 
         it("should not call createUser if email is already registered", async () => {
-            mockedFindUserByEmail
-                // @ts-ignore
-                .mockResolvedValueOnce({
-                    name: "John Doe",
-                    email: "johndoe@gmail.com",
-                })
+            // @ts-ignore
+            mockedFindUserByEmail.mockResolvedValueOnce({
+                name: "John Doe",
+                email: "johndoe@gmail.com",
+            })
 
             await registerUser()
 
             expect(mockedCreateUser).not.toHaveBeenCalled()
         })
+
+        it("should hash the password before saving to the database", async () => {
+            const mockedBcrypt = jest.mocked(bcrypt)
+
+            const hashedPassword = "hashedPassword"
+            // @ts-ignore
+            mockedBcrypt.hash.mockReturnValueOnce(hashedPassword)
+
+            // @ts-ignore
+            mockedCreateUser.mockResolvedValueOnce(validUser)
+
+            await registerUser(validUser)
+
+            expect(bcrypt.hash).toHaveBeenCalledWith(validUser.password, 10)
+
+            expect(createUser).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    name: validUser.name,
+                    email: validUser.email,
+                    password: hashedPassword,
+                })
+            )
+        })
     })
 })
+
+// todo - find right type assertion for jest.mocked
